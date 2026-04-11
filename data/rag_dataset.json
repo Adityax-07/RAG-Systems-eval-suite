@@ -1,0 +1,202 @@
+[
+  {
+    "question": "What are the three main types of machine learning?",
+    "answer": "The three main types of machine learning are supervised learning, unsupervised learning, and reinforcement learning. Supervised learning uses labeled data, unsupervised learning finds hidden patterns in unlabeled data, and reinforcement learning trains agents through rewards and penalties."
+  },
+  {
+    "question": "What is Retrieval-Augmented Generation (RAG) and how does it work?",
+    "answer": "RAG is a technique that enhances LLMs by giving them access to external knowledge bases. It works in three phases: indexing (documents are chunked, embedded, and stored in a vector database), retrieval (relevant chunks are fetched based on query similarity), and generation (the LLM answers using the retrieved context)."
+  },
+  {
+    "question": "What is the difference between faithfulness and relevance in LLM evaluation?",
+    "answer": "Faithfulness measures whether the answer is supported by the provided context, ensuring no unsupported claims are made. Relevance measures whether the answer actually addresses the question asked. An answer can be faithful but irrelevant (sticking to context but not answering the question) or relevant but unfaithful (answering the question but adding made-up details)."
+  },
+  {
+    "question": "What is FAISS and what types of indexes does it support?",
+    "answer": "FAISS (Facebook AI Similarity Search) is an open-source vector database that runs in-memory, ideal for prototyping. It supports three main index types: Flat index (exact search, slow but accurate), IVF or Inverted File Index (approximate search, much faster for large datasets), and HNSW or Hierarchical Navigable Small World (graph-based index with excellent recall and speed)."
+  },
+  {
+    "question": "What is the Transformer architecture and who introduced it?",
+    "answer": "The Transformer architecture was introduced by Vaswani et al. in 2017 in the paper 'Attention is All You Need'. It is the foundation of all modern LLMs and includes key components such as self-attention mechanism, multi-head attention, positional encoding, feed-forward networks, layer normalization, and residual connections."
+  },
+  {
+    "question": "What are the key benefits of RAG over using a pure LLM?",
+    "answer": "RAG reduces hallucination by grounding answers in retrieved facts, allows knowledge updates without retraining the model, provides citations and sources, and works well for domain-specific applications with proprietary data."
+  },
+  {
+    "question": "What is hallucination in LLMs and why is it a problem?",
+    "answer": "Hallucination is when an LLM generates information that is not present in the context or is factually incorrect, often with high confidence. It is one of the biggest challenges in deploying LLMs in production because users may trust incorrect information."
+  },
+  {
+    "question": "What is LoRA and how does it differ from full fine-tuning?",
+    "answer": "LoRA (Low-Rank Adaptation) is a fine-tuning technique that adds small trainable matrices to existing model layers instead of updating all model parameters. It is much cheaper than full fine-tuning while still being effective for adapting LLMs to specific tasks."
+  },
+  {
+    "question": "What are the main production challenges when deploying LLM applications?",
+    "answer": "The main production challenges include latency (addressed with streaming, caching, and smaller models), cost management (token counting, model selection, batching), reliability (retry logic, fallback models, rate limiting), and monitoring (tracking quality, latency, cost, and setting up regression alerts)."
+  },
+  {
+    "question": "What is Constitutional AI and which company uses it?",
+    "answer": "Constitutional AI (CAI) is a technique where the model learns to be helpful, harmless, and honest through a set of principles rather than just human feedback. It is used by Anthropic in their Claude AI assistant."
+  },
+  {
+    "question": "What is the all-MiniLM-L6-v2 model used for?",
+    "answer": "all-MiniLM-L6-v2 is a lightweight embedding model (approximately 80MB) that converts text into dense numerical vectors for semantic similarity search. It is fast, suitable for local deployment, and commonly used in RAG systems for indexing and retrieval."
+  },
+  {
+    "question": "What is context precision in LLM evaluation?",
+    "answer": "Context precision measures how much of the retrieved context was actually useful for answering the question. Low context precision means the retrieval system is returning irrelevant chunks, which wastes tokens and can confuse the LLM."
+  },
+  {
+    "question": "How does self-attention work in Transformers?",
+    "answer": "Self-attention allows the model to weigh the importance of different words in a sequence when encoding each word. It captures long-range dependencies that recurrent networks struggled with, by computing attention scores between all pairs of tokens in a sequence simultaneously."
+  },
+  {
+    "question": "What is chain-of-thought prompting?",
+    "answer": "Chain-of-thought prompting is a prompt engineering technique that asks the model to reason step-by-step before answering. It improves performance on complex reasoning tasks by making the model show its work rather than jumping directly to a conclusion."
+  },
+  {
+    "question": "Approximately how much did it cost to train GPT-4?",
+    "answer": "GPT-4 is estimated to have cost over 100 million dollars to train due to the enormous computational resources required for large language models."
+  },
+  {
+    "question": "What is LLMOps?",
+    "answer": "LLMOps (Large Language Model Operations) is a field that has emerged to address production concerns for LLM applications, including latency management, cost control, reliability, and monitoring. It is analogous to MLOps for traditional machine learning."
+  },
+  {
+    "question": "What are the three phases in how RAG works?",
+    "answer": "RAG works in three phases: the indexing phase where documents are split into chunks, converted to vector embeddings, and stored in a vector database; the retrieval phase where a query is embedded and the most semantically similar chunks are retrieved; and the generation phase where the retrieved chunks are added to the LLM prompt and the LLM generates a grounded answer."
+  },
+  {
+    "question": "What is QLoRA?",
+    "answer": "QLoRA is a fine-tuning technique that combines LoRA with quantization to reduce memory requirements, making it possible to fine-tune large language models on consumer hardware."
+  },
+  {
+    "question": "What is the difference between supervised and unsupervised learning?",
+    "answer": "Supervised learning trains the model on labeled data where each input has a corresponding correct output, used for tasks like spam detection and price prediction. Unsupervised learning trains on unlabeled data to find hidden patterns or structures, used for tasks like customer segmentation and anomaly detection."
+  },
+  {
+    "question": "What are the limitations of RAG systems?",
+    "answer": "RAG has several limitations: retrieval quality depends on embedding quality and chunk size, if relevant information is not retrieved the LLM may still hallucinate, longer contexts increase API costs and may exceed context window limits, and the two-step pipeline adds latency compared to direct LLM queries."
+  },
+  {
+    "question": "What are the three types of layers in a basic neural network?",
+    "answer": "A basic neural network has three types of layers: the input layer which receives raw data such as pixel values for images, hidden layers which transform data through weighted connections and activation functions, and the output layer which produces the final prediction or classification."
+  },
+  {
+    "question": "What is deep learning and what makes it different from regular machine learning?",
+    "answer": "Deep learning refers to neural networks with many hidden layers (deep architectures). The key innovation is that deep learning automatically learns feature representations from raw data, eliminating the need for manual feature engineering which is required in traditional machine learning."
+  },
+  {
+    "question": "Name four notable large language models and the companies that created them.",
+    "answer": "Four notable LLMs are: GPT-4 by OpenAI (used for text generation, coding, and reasoning), Claude by Anthropic (designed with safety and helpfulness in mind), LLaMA by Meta (open-source model for research and commercial use), and Gemini by Google (multimodal model capable of processing text, images, and code)."
+  },
+  {
+    "question": "What is RLHF and how is it used in LLM training?",
+    "answer": "RLHF (Reinforcement Learning from Human Feedback) is a technique used to align LLMs with human preferences. OpenAI uses RLHF extensively to align GPT models with human preferences and safety guidelines. It trains the model using human ratings of its outputs as a reward signal."
+  },
+  {
+    "question": "What are residual connections in the Transformer architecture and why are they used?",
+    "answer": "Residual connections are skip connections that add the input directly to the output of each sub-layer in a Transformer. They are used to prevent vanishing gradients in deep networks, allowing gradients to flow directly through the network during backpropagation."
+  },
+  {
+    "question": "What is multi-head attention in Transformers?",
+    "answer": "Multi-head attention runs multiple attention operations in parallel, allowing the model to attend to different aspects of the input simultaneously. For example, one head might capture syntactic relationships while another captures semantic relationships between tokens."
+  },
+  {
+    "question": "Why do Transformers need positional encoding?",
+    "answer": "Transformers need positional encoding because they process all tokens simultaneously rather than sequentially like RNNs. Without positional encodings, the model would have no information about the order of tokens in a sequence."
+  },
+  {
+    "question": "What are some examples of reinforcement learning applications?",
+    "answer": "Examples of reinforcement learning applications include game playing such as AlphaGo and chess engines, robotics where agents learn physical tasks, and recommendation systems that learn to maximize user engagement through feedback."
+  },
+  {
+    "question": "What is the difference between Pinecone and FAISS as vector databases?",
+    "answer": "FAISS is an open-source vector database that runs in-memory and is ideal for prototyping, while Pinecone is a managed cloud service that is production-ready and supports billions of vectors. FAISS is free and runs locally; Pinecone requires a subscription but handles scaling and infrastructure automatically."
+  },
+  {
+    "question": "What is Weaviate and what makes it different from other vector databases?",
+    "answer": "Weaviate is an open-source vector database that supports hybrid search, which combines both vector (semantic) search and keyword search. This makes it useful for applications that need both semantic understanding and exact keyword matching."
+  },
+  {
+    "question": "What is completeness as an evaluation metric for LLMs?",
+    "answer": "Completeness measures whether the answer covers all important aspects of the question. A complete answer addresses all parts of a multi-part question and includes all key information from the context that is relevant to answering it."
+  },
+  {
+    "question": "What are the main applications of deep learning?",
+    "answer": "Deep learning has achieved breakthrough results in computer vision (image classification, object detection, facial recognition), natural language processing (translation, sentiment analysis, text generation), speech recognition (converting spoken words to text), and drug discovery (predicting molecular properties and interactions)."
+  },
+  {
+    "question": "What are common unsupervised learning algorithms?",
+    "answer": "Common unsupervised learning algorithms include k-means clustering, DBSCAN, and autoencoders. These are used for tasks like customer segmentation, anomaly detection, and topic modeling where the data has no predefined labels."
+  },
+  {
+    "question": "What is few-shot prompting?",
+    "answer": "Few-shot prompting is a prompt engineering technique where examples of desired input-output pairs are provided in the prompt. This helps the LLM understand the task format and expected style of response without modifying the model weights."
+  },
+  {
+    "question": "What is role prompting in the context of LLMs?",
+    "answer": "Role prompting is a prompt engineering technique that assigns a persona or role to the LLM, for example telling it 'You are an expert mathematician'. This helps the model adopt the appropriate tone, knowledge level, and style for the task."
+  },
+  {
+    "question": "What key safety concerns exist with large language models?",
+    "answer": "Key AI safety concerns include hallucination where LLMs generate confident but false information, bias where models reflect and amplify societal biases from training data, misuse for generating misinformation or malicious content, and alignment which is the challenge of ensuring AI systems pursue goals that align with human values."
+  },
+  {
+    "question": "What strategies can reduce latency in production LLM applications?",
+    "answer": "Strategies to reduce latency include response streaming which sends tokens as they are generated instead of waiting for completion, caching which stores responses to common queries, and using smaller models for simple tasks while reserving larger models for complex ones."
+  },
+  {
+    "question": "What is response streaming and why is it useful for LLM applications?",
+    "answer": "Response streaming is a technique where tokens are sent to the user as they are generated rather than waiting for the complete response. It reduces perceived latency because users see partial answers immediately instead of waiting for the full response to complete."
+  },
+  {
+    "question": "What is the purpose of layer normalization in Transformers?",
+    "answer": "Layer normalization is applied after each sub-layer in a Transformer to stabilize training. It normalizes the inputs across the features of each layer, helping prevent issues like exploding or vanishing gradients during training."
+  },
+  {
+    "question": "What are feed-forward networks in the Transformer architecture?",
+    "answer": "In Transformers, feed-forward networks are applied after the attention mechanism. They are small neural networks applied identically and independently to each token position, adding non-linearity and increasing the model's representational capacity."
+  },
+  {
+    "question": "What is the E5-large embedding model?",
+    "answer": "E5-large is Microsoft's high-performance embedding model used to convert text into dense numerical vectors for semantic similarity search. It is one of the popular embedding models used in RAG systems alongside models like all-MiniLM-L6-v2 and OpenAI's text-embedding models."
+  },
+  {
+    "question": "What is Qdrant and what makes it stand out as a vector database?",
+    "answer": "Qdrant is an open-source vector database written in Rust, which gives it high performance characteristics. It is designed for vector similarity search and is known for its speed and efficiency."
+  },
+  {
+    "question": "What is the difference between full fine-tuning and parameter-efficient fine-tuning?",
+    "answer": "Full fine-tuning updates all model parameters during training, making it the most effective but also the most expensive approach in terms of compute and memory. Parameter-efficient fine-tuning methods like LoRA and QLoRA only add or update a small fraction of parameters, making them much cheaper while still achieving good results."
+  },
+  {
+    "question": "What does it mean for a large language model to perform zero-shot learning?",
+    "answer": "Zero-shot learning means the LLM can perform tasks without any task-specific training or examples provided in the prompt. LLMs can do this because training on massive text data teaches them generalizable language understanding and reasoning abilities."
+  },
+  {
+    "question": "What is the role of monitoring in production LLM applications?",
+    "answer": "Monitoring in production LLM applications involves tracking response quality over time using evaluation frameworks, monitoring latency, cost, and error rates, setting up alerts for quality degradation or regression, and logging every interaction for debugging and future improvement."
+  },
+  {
+    "question": "What is Chroma and when would you use it?",
+    "answer": "Chroma is an open-source vector database that is easy to use and good for development. It is typically used during the development and prototyping stages of building RAG or vector search applications."
+  },
+  {
+    "question": "What is the difference between the IVF and HNSW index types in FAISS?",
+    "answer": "IVF (Inverted File Index) is an approximate search index that is much faster than exact search for large datasets by clustering vectors and only searching within relevant clusters. HNSW (Hierarchical Navigable Small World) is a graph-based index that provides excellent recall and speed by building a hierarchical graph structure for navigation during search."
+  },
+  {
+    "question": "What does it mean that LLMs are trained on billions of text tokens?",
+    "answer": "LLMs are trained on massive corpora of text data containing billions or even trillions of individual tokens, which are chunks of text such as words or subwords. This large-scale training is what allows them to learn grammar, world facts, reasoning patterns, and even some common sense from the statistical patterns in the data."
+  },
+  {
+    "question": "What responsible AI principles do major organizations adopt?",
+    "answer": "Major organizations adopt responsible AI principles including transparency (being clear about when AI is being used), accountability (humans remain responsible for AI decisions), fairness (AI should not discriminate against protected groups), and privacy (AI systems should protect user data)."
+  },
+  {
+    "question": "What is exponential backoff in the context of LLM API reliability?",
+    "answer": "Exponential backoff is a retry strategy used for reliable API calls where failed requests are automatically retried with progressively longer wait times between attempts. This is used in production LLM applications as part of retry logic to handle transient failures without overwhelming the API."
+  }
+]
