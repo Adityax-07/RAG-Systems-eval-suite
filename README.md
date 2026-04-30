@@ -1,3 +1,14 @@
+---
+title: RAG Systems Eval Suite
+emoji: 📊
+colorFrom: purple
+colorTo: blue
+sdk: streamlit
+sdk_version: 1.32.0
+app_file: dashboard/app.py
+pinned: false
+---
+
 # RAG Systems Eval Suite
 
 A benchmark that runs **7 different RAG (Retrieval-Augmented Generation) strategies** against the same knowledge base and the same set of questions, then scores every answer with **10 LLM-as-judge metrics** so you can see exactly which retrieval strategy performs best — and why.
