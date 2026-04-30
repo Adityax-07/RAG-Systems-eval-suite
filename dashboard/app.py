@@ -18,6 +18,7 @@ section[data-testid="stSidebarContent"] { display: none !important; }
 JSON_PATH = Path(__file__).parent.parent / "data" / "benchmark_results.json"
 
 DISPLAY_ORDER = [
+    ("adaptive-rag",    "Adaptive RAG"),
     ("advanced-rag",    "Advanced RAG"),
     ("reranking-rag",   "Reranking RAG"),
     ("hybrid-rag",      "Hybrid RAG"),
@@ -61,8 +62,8 @@ laten_norm = [gm(k, "latency") for k, _ in DISPLAY_ORDER]
 cost_norm  = [gm(k, "cost")    for k, _ in DISPLAY_ORDER]
 
 # Estimated latency in ms based on system complexity (DB stores normalized 0-1)
-LATEN_EST = [480, 400, 350, 380, 360, 290, 200]
-COST_EST  = [0.042, 0.036, 0.030, 0.034, 0.028, 0.020, 0.014]
+LATEN_EST = [390, 480, 400, 350, 380, 360, 290, 200]
+COST_EST  = [0.038, 0.042, 0.036, 0.030, 0.034, 0.028, 0.020, 0.014]
 
 composites = []
 for k, _ in DISPLAY_ORDER:
@@ -143,10 +144,10 @@ html,body{height:100%;overflow:hidden;}
 body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);font-size:14px;line-height:1.6;}
 h1,h2,h3,h4{font-family:'Syne',sans-serif;}
 code,.mono{font-family:'DM Mono',monospace;}
-.shell{display:flex;height:100vh;overflow:hidden;}
+.shell{display:flex;height:100vh;}
 
 /* SIDEBAR */
-.sidebar{width:220px;flex-shrink:0;background:var(--bg2);border-right:1px solid var(--border);display:flex;flex-direction:column;height:100vh;overflow:hidden;}
+.sidebar{width:220px;flex-shrink:0;background:var(--bg2);border-right:1px solid var(--border);display:flex;flex-direction:column;position:sticky;top:0;height:100vh;overflow:hidden;}
 .sidebar-logo{padding:24px 20px 18px;border-bottom:1px solid var(--border);}
 .sidebar-logo .wordmark{font-family:'Syne',sans-serif;font-weight:800;font-size:15px;letter-spacing:-0.3px;line-height:1.2;color:var(--text);}
 .sidebar-logo .sub{font-size:10px;color:var(--muted);margin-top:3px;text-transform:uppercase;letter-spacing:0.08em;}
@@ -215,6 +216,7 @@ tbody tr:hover td{background:rgba(255,255,255,0.02);}
 .r3{background:rgba(251,146,60,0.12);color:#fdba74;border:1px solid rgba(251,146,60,0.25);}
 .rn{background:rgba(255,255,255,0.05);color:var(--muted);border:1px solid var(--border);}
 .sys-tag{display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:500;padding:3px 10px;border-radius:6px;}
+.sys-ada{background:rgba(232,121,249,0.15);color:#f0abfc;}
 .sys-adv{background:rgba(139,92,246,0.15);color:#c4b5fd;}
 .sys-rer{background:rgba(20,184,166,0.12);color:#5eead4;}
 .sys-hyb{background:rgba(59,130,246,0.12);color:#93c5fd;}
@@ -233,7 +235,7 @@ tbody tr:hover td{background:rgba(255,255,255,0.02);}
 
 /* HEATMAP */
 .hm-table{width:100%;border-collapse:separate;border-spacing:4px;}
-.hm-table th{font-size:10px;color:var(--muted);font-weight:400;text-align:center;padding:4px 2px;white-space:nowrap;}
+.hm-table th{font-size:10px;color:var(--muted);font-weight:400;text-align:center;padding:4px 6px;white-space:normal;word-break:break-word;max-width:80px;line-height:1.3;}
 .hm-table td{border-radius:6px;padding:8px 4px;text-align:center;font-size:11px;font-weight:500;font-family:'DM Mono',monospace;transition:transform 0.1s;cursor:default;}
 .hm-table td:hover{transform:scale(1.08);z-index:2;position:relative;}
 .hm-sys{font-size:11px;color:var(--muted);text-align:right!important;padding-right:10px!important;background:transparent!important;font-family:'DM Sans',sans-serif;white-space:nowrap;}
@@ -349,7 +351,7 @@ tbody tr:hover td{background:rgba(255,255,255,0.02);}
       <div class="tbl-wrap"><table><thead><tr>
         <th>#</th><th>System</th><th>Faithfulness</th><th>Relevance</th><th>Completeness</th>
         <th>Conciseness</th><th>Coherence</th><th>Hallucination ↓</th>
-        <th>Ctx Precision</th><th>Toxicity</th><th>Composite</th>
+        <th>Context Precision</th><th>Toxicity</th><th>Composite</th>
       </tr></thead><tbody id="main-tbody"></tbody></table></div>
     </div>
     <div class="grid-2">
@@ -441,8 +443,8 @@ tbody tr:hover td{background:rgba(255,255,255,0.02);}
         <div style="position:relative;width:100%;height:220px;"><canvas id="c-qvar"></canvas></div>
       </div>
       <div class="card">
-        <div class="card-title">Advanced RAG vs Naive RAG per question</div>
-        <div class="card-desc">Direct comparison of best vs simplest retrieval strategy</div>
+        <div class="card-title">Adaptive RAG vs Advanced RAG vs Naive RAG per question</div>
+        <div class="card-desc">Smart routing vs best fixed pipeline vs simplest baseline</div>
         <div style="position:relative;width:100%;height:220px;"><canvas id="c-qdiff"></canvas></div>
       </div>
     </div>
@@ -452,6 +454,7 @@ tbody tr:hover td{background:rgba(255,255,255,0.02);}
       <div class="tbl-wrap">
         <table><thead><tr>
           <th>Q#</th>
+          <th style="color:#f0abfc;">Adaptive</th>
           <th style="color:#c4b5fd;">Advanced</th><th style="color:#5eead4;">Reranking</th>
           <th style="color:#93c5fd;">Hybrid</th><th style="color:#86efac;">Query Rew.</th>
           <th style="color:#fcd34d;">HyDE</th><th style="color:#fdba74;">Naive</th>
@@ -498,13 +501,14 @@ INJECT_DATA_HERE
 
 // ─── CONSTANTS ───
 const SYS    = SYS_NAMES;
-const COLORS = ['#8b5cf6','#14b8a6','#3b82f6','#22c55e','#f59e0b','#fb923c','#f43f5e'];
-const TAGS   = ['sys-adv','sys-rer','sys-hyb','sys-qr','sys-hyd','sys-nav','sys-base'];
+const COLORS = ['#e879f9','#8b5cf6','#14b8a6','#3b82f6','#22c55e','#f59e0b','#fb923c','#f43f5e'];
+const TAGS   = ['sys-ada','sys-adv','sys-rer','sys-hyb','sys-qr','sys-hyd','sys-nav','sys-base'];
 const METRICS_Q      = ['faithfulness','relevance','completeness','conciseness','coherence'];
 const METRIC_LABELS  = ['Faithfulness','Relevance','Completeness','Conciseness','Coherence'];
 const QUESTIONS = Array.from({length:10},(_,i)=>({id:`Q${String(i+1).padStart(2,'0')}`,topic:`Question ${i+1}`}));
 
 const SYS_DESC = [
+  {name:'Adaptive RAG',   icon:'🧭', desc:'Routes each query to the right pipeline based on its complexity. Simple questions go to Naive RAG (fast), complex ones to Advanced RAG (best quality), ambiguous ones to Hybrid RAG (balanced). One extra LLM classification call per query.'},
   {name:'Advanced RAG',   icon:'⚡', desc:'Combines query rewriting, hybrid search (BM25+FAISS), and cross-encoder reranking in one pipeline. Maximum quality at the cost of higher latency and token usage.'},
   {name:'Reranking RAG',  icon:'🎯', desc:'FAISS fetches 10 candidates; a cross-encoder re-scores each (question, chunk) pair together, keeping top-3. Achieves better precision than bi-encoder alone.'},
   {name:'Hybrid RAG',     icon:'🔀', desc:'BM25 keyword search + FAISS semantic search, merged via Reciprocal Rank Fusion. Better recall for exact terms, acronyms, and proper nouns.'},
@@ -617,7 +621,7 @@ function buildMainTable(){
 // ─── HEATMAP ───
 function buildHeatmap(){
   const allM   = ['faithfulness','relevance','completeness','conciseness','coherence','hallucination','context_prec','toxicity'];
-  const allLbl = ['Faithf.','Relev.','Compl.','Concis.','Coher.','Halluc.↓','Ctx Prec','Toxicity'];
+  const allLbl = ['Faithfulness','Relevance','Completeness','Conciseness','Coherence','Hallucination ↓','Context Precision','Toxicity'];
   const inv    = [false,false,false,false,false,true,false,false];
   let h = `<table class="hm-table"><thead><tr><th></th>`;
   allLbl.forEach(l=>{ h+=`<th>${l}</th>`; });
@@ -652,8 +656,8 @@ function buildMetricLeaders(){
 // ─── RADAR GRID ───
 function buildRadarGrid(){
   const grid = document.getElementById('radar-grid');
-  const groups = [[0],[1],[2],[3],[4],[5,6]];
-  const titles = ['Advanced RAG','Reranking RAG','Hybrid RAG','Query Rewriting','HyDE RAG','Naive vs Base LLM'];
+  const groups = [[0],[1],[2,3],[4],[5],[6,7]];
+  const titles = ['Adaptive RAG','Advanced RAG','Reranking vs Hybrid','Query Rewriting','HyDE RAG','Naive vs Base LLM'];
   groups.forEach((ids,gi)=>{
     const cid = `rdr-${gi}`;
     const div = document.createElement('div');
@@ -665,7 +669,7 @@ function buildRadarGrid(){
         label:SYS[i], data:METRICS_Q.map(k=>D[k][i]),
         borderColor:COLORS[i], backgroundColor:COLORS[i]+'1a',
         pointBackgroundColor:COLORS[i], pointRadius:3, borderWidth:2,
-        borderDash:i===6?[4,3]:[]
+        borderDash:i===7?[4,3]:[]
       }));
       new Chart(document.getElementById(cid),{type:'radar',
         data:{labels:METRIC_LABELS,datasets},
@@ -853,8 +857,9 @@ window.addEventListener('DOMContentLoaded',()=>{
   // Q DIFF
   new Chart(document.getElementById('c-qdiff'),{type:'line',
     data:{labels:QUESTIONS.map(q=>q.id),datasets:[
-      {label:'Advanced RAG',data:Q_SCORES.map(r=>r[0]),borderColor:'#8b5cf6',backgroundColor:'rgba(139,92,246,0.1)',fill:true,tension:0.4,pointRadius:4,borderWidth:2},
-      {label:'Naive RAG',data:Q_SCORES.map(r=>r[5]),borderColor:'#fb923c',backgroundColor:'rgba(251,146,60,0.08)',fill:true,tension:0.4,pointRadius:4,borderWidth:2,borderDash:[5,4]}
+      {label:'Adaptive RAG',data:Q_SCORES.map(r=>r[0]),borderColor:'#e879f9',backgroundColor:'rgba(232,121,249,0.08)',fill:false,tension:0.4,pointRadius:4,borderWidth:2.5},
+      {label:'Advanced RAG',data:Q_SCORES.map(r=>r[1]),borderColor:'#8b5cf6',backgroundColor:'rgba(139,92,246,0.1)',fill:false,tension:0.4,pointRadius:4,borderWidth:2},
+      {label:'Naive RAG',data:Q_SCORES.map(r=>r[6]),borderColor:'#fb923c',backgroundColor:'rgba(251,146,60,0.08)',fill:false,tension:0.4,pointRadius:4,borderWidth:2,borderDash:[5,4]}
     ]},
     options:{responsive:true,maintainAspectRatio:false,
       plugins:{legend:{display:true,position:'bottom',labels:{color:'#7a7f94',font:{size:10},boxWidth:8,padding:10}}},
@@ -903,4 +908,4 @@ window.addEventListener('DOMContentLoaded',()=>{
 # Inject real data
 html = HTML.replace("INJECT_DATA_HERE", js_data)
 
-components.html(html, height=800, scrolling=False)
+components.html(html, height=900, scrolling=False)
