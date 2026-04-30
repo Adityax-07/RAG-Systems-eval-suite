@@ -38,6 +38,8 @@ pinned: false
 
 > **A production-grade benchmark that runs 8 RAG strategies on the same knowledge base and same questions, then scores every answer with 10 LLM-as-judge metrics — so you can see exactly which retrieval approach wins and why.**
 
+🔗 **Live Dashboard:** [huggingface.co/spaces/Adityax-07/RAG-Systems-eval-suite](https://huggingface.co/spaces/Adityax-07/RAG-Systems-eval-suite)
+
 </div>
 
 ---
