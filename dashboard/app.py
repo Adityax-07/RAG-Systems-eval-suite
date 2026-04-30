@@ -299,6 +299,7 @@ tbody tr:hover td{background:rgba(255,255,255,0.02);}
   <div class="nav-section" style="margin-top:8px;">Systems</div>
   <div class="sys-legend">
     <div>
+      <span class="sys-dot" style="background:#e879f9"></span>Adaptive RAG<br>
       <span class="sys-dot" style="background:var(--adv)"></span>Advanced RAG<br>
       <span class="sys-dot" style="background:var(--rer)"></span>Reranking RAG<br>
       <span class="sys-dot" style="background:var(--hyb)"></span>Hybrid RAG<br>
@@ -319,7 +320,7 @@ tbody tr:hover td{background:rgba(255,255,255,0.02);}
   <div class="topbar">
     <div>
       <div class="page-title" id="page-title">Overview</div>
-      <div class="page-meta">7 systems · 10 evaluators · 50 benchmark questions</div>
+      <div class="page-meta">8 systems · 10 evaluators · 50 benchmark questions</div>
     </div>
     <div class="topbar-right">
       <span class="chip live"><span class="dot-live"></span>Live Results</span>
