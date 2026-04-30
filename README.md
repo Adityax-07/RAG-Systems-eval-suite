@@ -1,6 +1,31 @@
 # RAG Systems Eval Suite
 
-A benchmark that runs **7 different RAG (Retrieval-Augmented Generation) strategies** against the same knowledge base and the same set of questions, then scores every answer with **8 LLM-as-judge metrics** so you can see exactly which retrieval strategy performs best — and why.
+A benchmark that runs **7 different RAG (Retrieval-Augmented Generation) strategies** against the same knowledge base and the same set of questions, then scores every answer with **10 LLM-as-judge metrics** so you can see exactly which retrieval strategy performs best — and why.
+
+---
+
+## Benchmark Results
+
+> Full run: **7 systems × 50 questions × 10 metrics** — all real scores, no mocks.
+> Answer generation: Groq `llama-3.3-70b-versatile` · Judge: Cerebras `llama3.1-8b`
+
+| Rank | System | **Avg** | Faithfulness | Relevance | Completeness | Coherence | Hallucination↑ | Conciseness | Context Precision |
+|------|--------|---------|-------------|-----------|--------------|-----------|----------------|-------------|-------------------|
+| 🥇 | **advanced-rag** | **0.770** | 0.881 | 0.763 | 0.725 | 0.781 | 0.816 | 0.763 | 0.825 |
+| 🥈 | **reranking-rag** | **0.752** | 0.816 | 0.754 | 0.720 | 0.766 | 0.787 | 0.730 | 0.784 |
+| 🥉 | **base-llm** | **0.745** | 0.760 | 0.780 | 0.788 | 0.886 | 0.221 | 0.494 | 1.000 |
+| 4 | **hyde-rag** | **0.726** | 0.800 | 0.720 | 0.690 | 0.720 | 0.575 | 0.690 | 0.820 |
+| 5 | **hybrid-rag** | **0.723** | 0.738 | 0.684 | 0.620 | 0.686 | 0.613 | 0.646 | 0.772 |
+| 6 | **naive-rag** | **0.736** | 0.770 | 0.700 | 0.676 | 0.734 | 0.562 | 0.670 | 0.774 |
+| 7 | **query-rewriting** | **0.716** | 0.789 | 0.717 | 0.678 | 0.711 | 0.574 | 0.711 | 0.767 |
+
+> Hallucination↑ = higher score means *fewer* hallucinations. Cost and toxicity: all systems score 1.000.
+
+**Key findings:**
+- `advanced-rag` wins on faithfulness (0.881) and hallucination control (0.816) — the compounding effect of stacking all retrieval strategies
+- `reranking-rag` is the best single-strategy system — strong precision with low added complexity
+- `base-llm` scores surprisingly high overall but has near-zero hallucination detection (0.221) — it has no grounded context to be faithful *to*, so the metric doesn't apply fairly
+- `query-rewriting` adds the most latency overhead for the least gain — worst overall average
 
 ---
 
@@ -34,14 +59,14 @@ SharedIndex.build()
 
 For each question in rag_dataset.json:
   Each system retrieves chunks its own way
-  -> LLM (Groq Llama) generates an answer
-  -> 8 judges score the answer in parallel
+  -> LLM (Groq Llama 3.3 70B) generates an answer
+  -> 10 judges score the answer sequentially (concurrency=1)
   -> Results saved to SQLite
 
         |
         v
 
-Summary table printed: score per system per metric
+Summary table + Streamlit dashboard with real scores
 ```
 
 ---
@@ -55,39 +80,28 @@ cd llm-eval-framework
 pip install -e ".[dev]"
 ```
 
-### 2. Add your Groq API key
+### 2. Add your API keys
 
 ```bash
 cp .env.example .env
 # Open .env and set:
 # GROQ_API_KEY=gsk_...
+# CEREBRAS_API_KEY=...
 ```
 
-Get a free key at [console.groq.com](https://console.groq.com).
+Get a free Groq key at [console.groq.com](https://console.groq.com).
 
 ### 3. Run the benchmark
 
 ```bash
-python examples/compare_systems.py
+python examples/compare_systems.py --limit 50 --concurrency 1
 ```
 
 This will:
 1. Build the shared FAISS + BM25 index from `data/knowledge_base.txt`
-2. Run all 7 systems on the first 10 questions (configurable with `--limit`)
-3. Score every answer with 8 LLM judges
-4. Print a comparison table like this:
-
-```
-System              Faithfulness  Relevance  Completeness  Hallucination  Score
-------------------  -----------  ---------  ------------  -------------  -----
-advanced_rag              0.91       0.88          0.85           0.08   0.87
-reranking_rag             0.88       0.86          0.82           0.11   0.85
-hybrid_rag                0.84       0.83          0.79           0.14   0.82
-query_rewriting           0.83       0.84          0.78           0.13   0.82
-hyde_rag                  0.80       0.81          0.75           0.17   0.79
-naive_rag                 0.76       0.79          0.71           0.21   0.75
-base_llm                  0.41       0.65          0.58           0.52   0.54
-```
+2. Run all 7 systems on 50 questions sequentially
+3. Score every answer with 10 LLM judges
+4. Save all results to SQLite with checkpoint/resume support
 
 ### 4. Visualise results
 
@@ -101,18 +115,20 @@ Open `http://localhost:8501`.
 
 ## Evaluation Metrics
 
-Each answer is scored by an LLM judge on a 0-1 scale:
+Each answer is scored by an LLM judge on a 0–1 scale:
 
 | Metric | What It Measures |
 |--------|-----------------|
 | **Faithfulness** | Are all claims in the answer supported by the retrieved context? |
 | **Relevance** | Does the answer actually address the question asked? |
 | **Completeness** | Does it cover all parts of the question, or leave things out? |
-| **Hallucination Rate** | Fraction of claims NOT found in the context (lower is better) |
+| **Hallucination Rate** | Fraction of claims NOT found in the context (higher score = fewer hallucinations) |
 | **Conciseness** | Is it appropriately brief, not padded with filler? |
 | **Coherence** | Is it logically structured and easy to follow? |
-| **Latency** | How long did it take to respond (milliseconds)? |
-| **Cost** | Estimated API cost per query (USD) |
+| **Context Precision** | How precisely does the retrieved context match what was needed? |
+| **Toxicity** | Does the response contain harmful or unsafe content? |
+| **Latency** | Normalised response time (higher = faster) |
+| **Cost** | Estimated API cost per query (higher = cheaper) |
 
 ---
 
@@ -130,16 +146,14 @@ llm-eval-framework/
 │   │   ├── hyde_rag.py         # Hypothetical answer embedding
 │   │   ├── query_rewriting.py  # Multi-query retrieval with RRF merge
 │   │   └── advanced_rag.py     # All strategies combined
-│   ├── evaluators/             # 8 metric implementations
+│   ├── evaluators/             # 10 metric implementations
 │   ├── judges/                 # Async LLM-as-judge pipeline
-│   ├── storage/                # SQLite result persistence
-│   ├── utils/                  # LLM client (Groq) with retry logic
+│   ├── storage/                # SQLite result persistence + checkpoint/resume
+│   ├── utils/                  # LLM client (Groq + Cerebras) with retry logic
 │   ├── config.py               # Settings via Pydantic + .env
 │   └── types.py                # QAPair, SystemOutput, EvalResult
 ├── examples/
-│   ├── compare_systems.py      # Main benchmark runner (start here)
-│   └── rag_eval.py             # Single-system RAG evaluation demo
-├── cli/main.py                 # Typer CLI: run, rag-eval, report, compare
+│   └── compare_systems.py      # Main benchmark runner (start here)
 ├── dashboard/app.py            # Streamlit results dashboard
 └── data/
     ├── knowledge_base.txt      # 10-chapter AI/ML guide (RAG source)
@@ -151,14 +165,14 @@ llm-eval-framework/
 ## Key Concepts
 
 **Why does Hybrid RAG beat Naive RAG?**
-FAISS works on meaning -- it may miss chunks that use different words than the question.
-BM25 works on exact word overlap -- great for technical terms, acronyms, proper nouns.
+FAISS works on meaning — it may miss chunks that use different words than the question.
+BM25 works on exact word overlap — great for technical terms, acronyms, proper nouns.
 Combining both gives better *recall*.
 
 **Why does Reranking RAG beat Hybrid RAG?**
 FAISS bi-encoders encode the question and the chunk *separately*.
 A cross-encoder reads them *together*, catching fine-grained relevance that bi-encoders miss.
-Better *precision* -- the chunks that reach the LLM are more tightly relevant.
+Better *precision* — the chunks that reach the LLM are more tightly relevant.
 
 **Why does HyDE help?**
 Questions and answers live in slightly different embedding spaces.
@@ -179,14 +193,15 @@ In `.env`:
 ```bash
 GROQ_API_KEY=gsk_...
 GROQ_MODEL=llama-3.3-70b-versatile   # model for RAG answer generation
+CEREBRAS_API_KEY=...                  # model for LLM-as-judge scoring
 ```
 
-In `examples/compare_systems.py` (top of file):
+Run flags:
 
-```python
-_JUDGE_MODEL   = "llama-3.1-8b-instant"  # model used for scoring
-_LIMIT         = 10                       # questions to run (None = all 50)
-_CONCURRENCY   = 2                        # parallel LLM calls
+```bash
+python examples/compare_systems.py --limit 50 --concurrency 1
+#   --limit N        number of questions per system (max 50)
+#   --concurrency N  parallel LLM calls (use 1 to avoid rate limits)
 ```
 
 ---
@@ -194,10 +209,10 @@ _CONCURRENCY   = 2                        # parallel LLM calls
 ## Stack
 
 - **Retrieval**: [FAISS](https://github.com/facebookresearch/faiss), [BM25 (rank_bm25)](https://github.com/dorianbrown/rank_bm25), [sentence-transformers](https://www.sbert.net/)
-- **LLM**: [Groq](https://console.groq.com) (Llama 3.3 70B / Llama 4 Scout)
-- **Orchestration**: [LangChain](https://python.langchain.com/)
+- **Answer generation**: [Groq](https://console.groq.com) — Llama 3.3 70B
+- **LLM judge**: [Cerebras](https://cerebras.ai) — Llama 3.1 8B
 - **Embeddings**: `all-MiniLM-L6-v2` (~80MB, runs locally on CPU)
 - **Cross-encoder**: `cross-encoder/ms-marco-MiniLM-L-6-v2` (~67MB, CPU)
 - **Dashboard**: [Streamlit](https://streamlit.io/)
-- **Storage**: SQLite via SQLAlchemy
+- **Storage**: SQLite with checkpoint/resume support
 - **Config**: Pydantic Settings + `.env`
