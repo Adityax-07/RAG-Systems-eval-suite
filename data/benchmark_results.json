@@ -1,4 +1,21 @@
 {
+  "adaptive-rag": {
+    "scores": {
+      "faithfulness": 1.0,
+      "relevance": 0.8000000000000002,
+      "completeness": 0.8000000000000002,
+      "hallucination_rate": 0.6666666666666666,
+      "conciseness": 0.8000000000000002,
+      "coherence": 0.8000000000000002,
+      "latency": 0.20000000000000004,
+      "cost": 1.0
+    },
+    "faithfulness_per_q": [
+      1.0,
+      1.0,
+      1.0
+    ]
+  },
   "advanced-rag": {
     "scores": {
       "faithfulness": 0.88125,

@@ -1,6 +1,6 @@
 """System Comparison — the main benchmark script.
 
-Runs all 7 RAG variants on the same dataset with the same 8 evaluators,
+Runs all 8 RAG variants on the same dataset with the same 8 evaluators,
 saves each run to the database, and prints a final comparison table showing
 how quality metrics improve as techniques are added.
 
@@ -12,6 +12,7 @@ Systems evaluated (in order):
   5. hyde-rag          — Hypothetical Document Embeddings
   6. query-rewriting   — Multi-query retrieval
   7. advanced-rag      — All techniques combined (the ceiling)
+  8. adaptive-rag      — Routes each query to the right pipeline dynamically
 
 Run with:
     python examples/compare_systems.py
@@ -57,6 +58,7 @@ from eval_framework.systems import (
     HyDERAGSystem,
     QueryRewritingRAGSystem,
     AdvancedRAGSystem,
+    AdaptiveRAGSystem,
 )
 
 configure_logging()
@@ -184,7 +186,7 @@ async def main(doc_path: str, dataset_path: str, concurrency: int, limit: int | 
         f"Document : [cyan]{doc_path}[/cyan]\n"
         f"Dataset  : [cyan]{dataset_path}[/cyan]\n"
         f"Limit    : [cyan]{'all' if limit is None else limit} questions[/cyan]\n"
-        f"Systems  : [cyan]7 (base-llm -> advanced-rag)[/cyan]",
+        f"Systems  : [cyan]8 (base-llm -> adaptive-rag)[/cyan]",
         title="RAG System Comparison",
         expand=False,
     ))
@@ -198,7 +200,7 @@ async def main(doc_path: str, dataset_path: str, concurrency: int, limit: int | 
     reranker = CrossEncoder("cross-encoder/ms-marco-MiniLM-L-6-v2")
     console.print("[green]Reranker ready[/green]")
 
-    # ── Build all 7 systems ───────────────────────────────────────────────────
+    # ── Build all 8 systems ───────────────────────────────────────────────────
     model_name = settings.groq_model
     systems = [
         ("base-llm",        BaseLLMSystem(model_name=model_name)),
@@ -208,6 +210,7 @@ async def main(doc_path: str, dataset_path: str, concurrency: int, limit: int | 
         ("hyde-rag",        HyDERAGSystem(index, model_name=model_name)),
         ("query-rewriting", QueryRewritingRAGSystem(index, model_name=model_name)),
         ("advanced-rag",    AdvancedRAGSystem(index, model_name=model_name, reranker=reranker)),
+        ("adaptive-rag",    AdaptiveRAGSystem(index, model_name=model_name, reranker=reranker)),
     ]
     console.print(f"[green]{len(systems)} systems ready[/green]")
 
@@ -229,10 +232,27 @@ async def main(doc_path: str, dataset_path: str, concurrency: int, limit: int | 
     est_minutes = total_questions * len(systems) * 0.25
     console.print(f"[dim]Estimated time: ~{est_minutes:.0f}–{est_minutes*1.5:.0f} minutes on Groq free tier[/dim]\n")
 
-    # ── Run each system ───────────────────────────────────────────────────────
+    # ── Run each system (with checkpoint: skip already-completed runs) ────────
+    import sqlite3 as _sqlite3
+    expected_n = len(raw_data)
+    _conn = _sqlite3.connect(str(db_path))
+    completed = {
+        r[0] for r in _conn.execute(
+            "SELECT system_name FROM evaluation_runs WHERE total_examples=?",
+            (expected_n,)
+        ).fetchall()
+    }
+    _conn.close()
+    if completed:
+        console.print(f"\n[dim]Skipping {len(completed)} already-completed system(s): "
+                      f"{', '.join(sorted(completed))}[/dim]")
+
     reports = []
-    for system_name, system in systems:
-        console.rule(f"[bold]{system_name}[/bold]")
+    pending = [(n, s) for n, s in systems if n not in completed]
+    console.print(f"[yellow]Running {len(pending)} systems sequentially...[/yellow]\n")
+
+    for system_name, system in pending:
+        console.print(f"\n  [bold cyan]-> starting {system_name}[/bold cyan]")
 
         # Fresh dataset copy each time (query() mutates qa_pair.context in place)
         dataset = [
@@ -240,15 +260,14 @@ async def main(doc_path: str, dataset_path: str, concurrency: int, limit: int | 
             for d in raw_data
         ]
 
-        with console.status(f"[bold green]Evaluating {system_name}..."):
-            report = await run_one_system(
-                name=system_name,
-                system_fn=system.query,
-                dataset=dataset,
-                evaluators=evaluators,
-                concurrency=concurrency,
-                db=db,
-            )
+        report = await run_one_system(
+            name=system_name,
+            system_fn=system.query,
+            dataset=dataset,
+            evaluators=evaluators,
+            concurrency=concurrency,
+            db=db,
+        )
 
         reports.append(report)
 

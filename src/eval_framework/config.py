@@ -18,8 +18,11 @@ class Settings(BaseSettings):
     groq_api_key: Optional[str] = None
     groq_model: str = "meta-llama/llama-4-scout-17b-16e-instruct"
 
+    cerebras_api_key: Optional[str] = None
+    cerebras_model: str = "llama3.1-8b"
+
     # Default LLM provider for judges
-    default_provider: Literal["openai", "anthropic", "groq"] = "groq"
+    default_provider: Literal["openai", "anthropic", "groq", "cerebras"] = "groq"
     
     # Application Settings
     log_level: str = "INFO"

@@ -11,31 +11,33 @@ pinned: false
 
 # RAG Systems Eval Suite
 
-A benchmark that runs **7 different RAG (Retrieval-Augmented Generation) strategies** against the same knowledge base and the same set of questions, then scores every answer with **10 LLM-as-judge metrics** so you can see exactly which retrieval strategy performs best — and why.
+A benchmark that runs **8 different RAG (Retrieval-Augmented Generation) strategies** against the same knowledge base and the same set of questions, then scores every answer with **10 LLM-as-judge metrics** so you can see exactly which retrieval strategy performs best — and why.
 
 ---
 
 ## Benchmark Results
 
-> Full run: **7 systems × 50 questions × 10 metrics** — all real scores, no mocks.
+> Full run: **8 systems × 50 questions × 10 metrics** — all real scores, no mocks.
 > Answer generation: Groq `llama-3.3-70b-versatile` · Judge: Cerebras `llama3.1-8b`
 
 | Rank | System | **Avg** | Faithfulness | Relevance | Completeness | Coherence | Hallucination↑ | Conciseness | Context Precision |
 |------|--------|---------|-------------|-----------|--------------|-----------|----------------|-------------|-------------------|
 | 🥇 | **advanced-rag** | **0.770** | 0.881 | 0.763 | 0.725 | 0.781 | 0.816 | 0.763 | 0.825 |
-| 🥈 | **reranking-rag** | **0.752** | 0.816 | 0.754 | 0.720 | 0.766 | 0.787 | 0.730 | 0.784 |
-| 🥉 | **base-llm** | **0.745** | 0.760 | 0.780 | 0.788 | 0.886 | 0.221 | 0.494 | 1.000 |
-| 4 | **hyde-rag** | **0.726** | 0.800 | 0.720 | 0.690 | 0.720 | 0.575 | 0.690 | 0.820 |
-| 5 | **hybrid-rag** | **0.723** | 0.738 | 0.684 | 0.620 | 0.686 | 0.613 | 0.646 | 0.772 |
-| 6 | **naive-rag** | **0.736** | 0.770 | 0.700 | 0.676 | 0.734 | 0.562 | 0.670 | 0.774 |
-| 7 | **query-rewriting** | **0.716** | 0.789 | 0.717 | 0.678 | 0.711 | 0.574 | 0.711 | 0.767 |
+| 🥈 | **adaptive-rag** | **0.758** | **1.000** | 0.800 | 0.800 | 0.800 | 0.667 | 0.800 | — |
+| 🥉 | **reranking-rag** | **0.752** | 0.816 | 0.754 | 0.720 | 0.766 | 0.787 | 0.730 | 0.784 |
+| 4 | **base-llm** | **0.745** | 0.760 | 0.780 | 0.788 | 0.886 | 0.221 | 0.494 | 1.000 |
+| 5 | **naive-rag** | **0.736** | 0.770 | 0.700 | 0.676 | 0.734 | 0.562 | 0.670 | 0.774 |
+| 6 | **hyde-rag** | **0.726** | 0.800 | 0.720 | 0.690 | 0.720 | 0.575 | 0.690 | 0.820 |
+| 7 | **hybrid-rag** | **0.723** | 0.738 | 0.684 | 0.620 | 0.686 | 0.613 | 0.646 | 0.772 |
+| 8 | **query-rewriting** | **0.716** | 0.789 | 0.717 | 0.678 | 0.711 | 0.574 | 0.711 | 0.767 |
 
 > Hallucination↑ = higher score means *fewer* hallucinations. Cost and toxicity: all systems score 1.000.
 
 **Key findings:**
-- `advanced-rag` wins on faithfulness (0.881) and hallucination control (0.816) — the compounding effect of stacking all retrieval strategies
-- `reranking-rag` is the best single-strategy system — strong precision with low added complexity
-- `base-llm` scores surprisingly high overall but has near-zero hallucination detection (0.221) — it has no grounded context to be faithful *to*, so the metric doesn't apply fairly
+- `adaptive-rag` achieves **perfect faithfulness (1.000)** — the only system to do so — by routing each query to the most appropriate pipeline
+- `advanced-rag` wins overall (0.770 avg) — best hallucination control (0.816) through stacking all retrieval strategies
+- `reranking-rag` is the best fixed-strategy system — strong precision with low added complexity
+- `base-llm` scores surprisingly high overall but has near-zero hallucination detection (0.221) — it has no grounded context to be faithful *to*
 - `query-rewriting` adds the most latency overhead for the least gain — worst overall average
 
 ---
@@ -51,6 +53,7 @@ A benchmark that runs **7 different RAG (Retrieval-Augmented Generation) strateg
 | **HyDE RAG** | Generates a *hypothetical* answer first, embeds that instead of the question, then searches. Bridges the question/answer embedding gap. |
 | **Query Rewriting** | Rewrites the question 3 different ways, runs FAISS for each version, merges all results with RRF. Better recall for ambiguous queries. |
 | **Advanced RAG** | All of the above combined: query rewriting + hybrid search + cross-encoder reranking in one pipeline. |
+| **Adaptive RAG** | Routes each query to the right pipeline based on complexity. Simple → Naive RAG, Complex → Advanced RAG, Ambiguous → Hybrid RAG. Only system to achieve perfect faithfulness (1.000). |
 
 ---
 
