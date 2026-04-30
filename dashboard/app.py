@@ -1,6 +1,6 @@
 """RAG Benchmark Dashboard — deploy-ready, no local package dependencies."""
 
-import json, sqlite3
+import json
 from pathlib import Path
 import streamlit as st
 import streamlit.components.v1 as components
@@ -15,7 +15,7 @@ st.markdown("""<style>
 section[data-testid="stSidebarContent"] { display: none !important; }
 </style>""", unsafe_allow_html=True)
 
-DB_PATH = Path(__file__).parent.parent / "data" / "results.db"
+JSON_PATH = Path(__file__).parent.parent / "data" / "benchmark_results.json"
 
 DISPLAY_ORDER = [
     ("advanced-rag",    "Advanced RAG"),
@@ -31,25 +31,12 @@ QUALITY_METRICS = ["faithfulness","relevance","completeness","conciseness","cohe
 
 
 def load_data():
-    conn = sqlite3.connect(str(DB_PATH))
-    conn.row_factory = sqlite3.Row
+    raw = json.loads(JSON_PATH.read_text())
     scores, per_q = {}, {}
     for db_name, _ in DISPLAY_ORDER:
-        row = conn.execute(
-            "SELECT id, summary_scores FROM evaluation_runs WHERE system_name=? ORDER BY timestamp DESC LIMIT 1",
-            (db_name,)
-        ).fetchone()
-        if not row:
-            scores[db_name] = {}
-            per_q[db_name] = []
-            continue
-        scores[db_name] = json.loads(row["summary_scores"])
-        results = conn.execute(
-            "SELECT score FROM evaluation_results WHERE run_id=? AND metric='faithfulness'",
-            (row["id"],)
-        ).fetchall()
-        per_q[db_name] = [round(float(r["score"]), 3) for r in results]
-    conn.close()
+        entry = raw.get(db_name, {})
+        scores[db_name] = entry.get("scores", {})
+        per_q[db_name] = entry.get("faithfulness_per_q", [])
     return scores, per_q
 
 
