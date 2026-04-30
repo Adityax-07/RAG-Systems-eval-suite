@@ -1,14 +1,3 @@
----
-title: RAG Systems Eval Suite
-emoji: 📊
-colorFrom: purple
-colorTo: blue
-sdk: docker
-app_port: 8501
-app_file: dashboard/app.py
-pinned: false
----
-
 <div align="center">
 
 <img src="https://readme-typing-svg.demolab.com?font=Fira+Code&weight=600&size=28&pause=1000&color=8B5CF6&center=true&vCenter=true&width=600&lines=RAG+Systems+Eval+Suite;Benchmark+8+RAG+Strategies;10+LLM-as-Judge+Metrics;Real+Scores%2C+No+Mocks" alt="Typing SVG" />
