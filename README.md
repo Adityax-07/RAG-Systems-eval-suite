@@ -3,8 +3,8 @@ title: RAG Systems Eval Suite
 emoji: 📊
 colorFrom: purple
 colorTo: blue
-sdk: streamlit
-sdk_version: 1.32.0
+sdk: docker
+app_port: 8501
 app_file: dashboard/app.py
 pinned: false
 ---
